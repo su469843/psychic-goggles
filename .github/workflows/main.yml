@@ -31,13 +31,18 @@ jobs:
       - name: Build APK
         shell: bash
         run: |
-          cd android
-          echo "${{ secrets.KEYSTORE_STORE_FILE_BASE64 }}" | base64 --decode > ${{ secrets.KEYSTORE_STORE_FILE }}
-          ./gradlew assembleRelease -PMYAPP_UPLOAD_STORE_FILE='${{ secrets.KEYSTORE_STORE_FILE }}' \
-                                  -PMYAPP_UPLOAD_KEY_ALIAS='${{ secrets.KEYSTORE_KEY_ALIAS }}' \
-                                  -PMYAPP_UPLOAD_STORE_PASSWORD='${{ secrets.KEYSTORE_PASSWORD }}' \
-                                  -PMYAPP_UPLOAD_KEY_PASSWORD='${{ secrets.KEYSTORE_KEY_PASSWORD }}'
-          rm -f ${{ secrets.KEYSTORE_STORE_FILE }}
+          if [ -d "android" ]; then
+            cd android
+            echo "${{ secrets.KEYSTORE_STORE_FILE_BASE64 }}" | base64 --decode > ${{ secrets.KEYSTORE_STORE_FILE }}
+            ./gradlew assembleRelease -PMYAPP_UPLOAD_STORE_FILE='${{ secrets.KEYSTORE_STORE_FILE }}' \
+                                    -PMYAPP_UPLOAD_KEY_ALIAS='${{ secrets.KEYSTORE_KEY_ALIAS }}' \
+                                    -PMYAPP_UPLOAD_STORE_PASSWORD='${{ secrets.KEYSTORE_PASSWORD }}' \
+                                    -PMYAPP_UPLOAD_KEY_PASSWORD='${{ secrets.KEYSTORE_KEY_PASSWORD }}'
+            rm -f ${{ secrets.KEYSTORE_STORE_FILE }}
+          else
+            echo "Error: android directory not found"
+            exit 1
+          fi
 
       - name: Get package version
         run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
