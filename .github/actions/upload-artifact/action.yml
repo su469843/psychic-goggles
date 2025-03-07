@@ -1,0 +1,23 @@
+name: 'Upload Artifact'
+description: 'Upload build artifacts to GitHub'
+runs:
+  using: 'composite'
+  steps:
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-release-${{ env.PACKAGE_VERSION }}
+        path: android/app/build/outputs/apk/release/*.apk
+        retention-days: 90
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ env.PACKAGE_VERSION }}
+        name: Release v${{ env.PACKAGE_VERSION }}
+        files: android/app/build/outputs/apk/release/*.apk
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ github.token }}

@@ -17,6 +17,17 @@ jobs:
       - name: Setup Env
         uses: ./.github/actions/setup
 
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
       - name: Build APK
         shell: bash
         run: |
